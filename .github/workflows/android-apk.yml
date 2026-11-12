@@ -1,5 +1,4 @@
 
-
 name: Build MARVEL Business Manager APK
 
 on:
@@ -30,29 +29,27 @@ jobs:
           unzip -q "$ZIP_FILE" -d source
           SETTINGS_FILE="$(find source -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit)"
           if [ -z "$SETTINGS_FILE" ]; then
-            echo "Could not find settings.gradle or settings.gradle.kts in the extracted source."
-            find source -maxdepth 4 -type f | head -100
+            echo "Could not find Gradle settings file."
             exit 1
           fi
           PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
           if [ ! -f "$PROJECT_DIR/app/build.gradle" ] && [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
-            echo "The project does not contain an app Gradle module at $PROJECT_DIR/app."
-            find "$PROJECT_DIR" -maxdepth 4 -type f | head -100
+            echo "Android app module not found."
             exit 1
           fi
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-  - name: Setup android SDK
-  uses: android-actions/setup-android@v4
-  with:
-    accept-android-sdk-licenses: true
-    log-accepted-android-sdk-licenses: false
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: false
 
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
